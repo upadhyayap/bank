@@ -53,8 +53,8 @@ public class AccountService {
         return true;
     }
 
-    public Long getFutureBalance(Long AccountNo, Date date){
-        return 0l;
+    public Double getFutureBalance(Long AccountNo, Date date){
+        return 0d;
     }
 
 }

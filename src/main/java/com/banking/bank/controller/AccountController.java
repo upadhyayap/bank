@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +27,7 @@ public class AccountController {
     public AccountService accountService;
 
     @Autowired
-    public AccountController(AccountService accountService){
+    public AccountController(AccountService accountService) {
         this.accountService = accountService;
     }
 
@@ -39,23 +40,26 @@ public class AccountController {
         return new ResponseEntity<>(resource, status);
     }
 
-    @RequestMapping(value = "/{accountNO}/balance", method = RequestMethod.GET)
-    public ResponseEntity getBalance(@PathVariable("accountNo") Long accountNo) {
+    @RequestMapping(value = "/{accountNo}/balance", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map<String, Double>> getBalance(@PathVariable("accountNo") long accountNo) {
         // we can first validate the Account no and if not valid throw an exception
         // skipping it due to time constraint
         Double balance = accountService.getBalanceInfo(accountNo);
+        HashMap resStatus = new HashMap();
+        resStatus.put("balance", balance);
         HttpStatus status = balance != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
 
-        return new ResponseEntity(balance, status);
+        return new ResponseEntity(resStatus, status);
     }
 
-    @RequestMapping(value = "/{accountNO}/addpayee",
+    @RequestMapping(value = "/{accountNo}/addpayee",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResStatus> addPayee(@PathVariable("accountNo") Long accountNo, @RequestBody Map<String, Object> payeeInfo){
+    public ResponseEntity<ResStatus> addPayee(@PathVariable("accountNo") Long accountNo, @RequestBody Map<String, Object> payeeInfo) {
         ResStatus resStatus = new ResStatus();
         boolean status = accountService.addPayee(payeeInfo);
-        if(status)
+        if (status)
             resStatus.setStatus("Success");
         else
             resStatus.setStatus("failed");
@@ -63,13 +67,13 @@ public class AccountController {
         return new ResponseEntity(resStatus, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/{accountNO}/droppayee",
-            method = RequestMethod.POST,
+    @RequestMapping(value = "/{accountNo}/droppayee",
+            method = RequestMethod.DELETE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity deletePayee(@PathVariable("accountNo") Long accountNo, @RequestBody Map<String, Object> payeeInfo){
+    public ResponseEntity deletePayee(@PathVariable("accountNo") Long accountNo, @RequestBody Map<String, Object> payeeInfo) {
         ResStatus resStatus = new ResStatus();
         boolean status = accountService.deletePayee(payeeInfo);
-        if(status)
+        if (status)
             resStatus.setStatus("Success");
         else
             resStatus.setStatus("failed");
@@ -86,22 +90,26 @@ public class AccountController {
         return new ResponseEntity<List<Transaction>>(history, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/{accountNo}/transactInstant",
+    @RequestMapping(value = "/{accountNo}/transferInstant",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Transaction> transactInstant(@PathVariable("accountNo") Long accountNo, @RequestBody Map<String, Object> transferInfo) {
-        Transaction transaction = accountService.transferInstant(accountNo,
-                (Long)transferInfo.get("payerAccNo"), (Double)transferInfo.get("amount"));
+    public ResponseEntity<Transaction> transferInstant(@PathVariable("accountNo") Long accountNo, @RequestBody Map<String, Object> transferInfo) {
+        // catch number format exception and throw error
+        Long payeeAccNo = Long.parseLong(transferInfo.get("payerAccNo").toString());
+        Double amount = Double.parseDouble(transferInfo.get("amount").toString());
+        Transaction transaction = accountService.transferInstant(accountNo, payeeAccNo, amount);
 
         return new ResponseEntity<Transaction>(transaction, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/{accountNo}/scheduletransfer")
-    public ResponseEntity<ResStatus> scheduleTransact(@PathVariable("accountNo") Long accountNo, @RequestBody Map<String, Object> transferInfo){
+    @RequestMapping(value = "/{accountNo}/scheduletransfer",
+            method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResStatus> scheduleTransact(@PathVariable("accountNo") Long accountNo, @RequestBody Map<String, Object> transferInfo) {
         ResStatus resStatus = new ResStatus();
         boolean transactStatus = accountService.scheduleTransfer(accountNo, transferInfo);
 
-        if(transactStatus)
+        if (transactStatus)
             resStatus.setStatus("Success");
         else
             resStatus.setStatus("failed");
@@ -109,12 +117,14 @@ public class AccountController {
         return new ResponseEntity<ResStatus>(resStatus, HttpStatus.OK);
     }
 
-    @RequestMapping(value="/{accountNo}/balance/future" , method=RequestMethod.GET)
-    public ResponseEntity<Resource> getBalanceForFutureDate(@PathVariable Long accountNo, @RequestParam("date")
-                                                            @DateTimeFormat(pattern="dd-mm-yyyy") Date toDate) {
-        Long balance = accountService.getFutureBalance(accountNo, toDate);
+    @RequestMapping(value = "/{accountNo}/balance/future", method = RequestMethod.GET)
+    public ResponseEntity<Map<String, Double>> getBalanceForFutureDate(@PathVariable("accountNo") Long accountNo, @RequestParam("date")
+    @DateTimeFormat(pattern = "dd-mm-yyyy") Date toDate) {
+        Double balance = accountService.getFutureBalance(accountNo, toDate);
+        HashMap resStatus = new HashMap();
+        resStatus.put("balance", balance);
 
-        return new ResponseEntity<Resource>(new Resource(balance), HttpStatus.OK);
+        return new ResponseEntity<>(resStatus, HttpStatus.OK);
     }
 
 }

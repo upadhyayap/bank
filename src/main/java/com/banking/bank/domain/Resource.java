@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class Resource {
     private long id;
+    private String status;
 
     public Resource(){}
     public Resource(long id){

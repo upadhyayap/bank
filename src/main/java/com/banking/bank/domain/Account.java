@@ -6,4 +6,7 @@ import lombok.Data;
 public class Account {
     Long id;
     Double balance;
+    String name;
+    String email;
+    long phoneNo;
 }
