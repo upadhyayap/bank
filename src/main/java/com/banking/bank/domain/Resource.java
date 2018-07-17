@@ -1,4 +1,4 @@
-package com.banking.bank.dao;
+package com.banking.bank.domain;
 
 import lombok.Data;
 

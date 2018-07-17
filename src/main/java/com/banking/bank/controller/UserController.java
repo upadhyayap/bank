@@ -1,7 +1,7 @@
 package com.banking.bank.controller;
 
-import com.banking.bank.dao.Resource;
-import com.banking.bank.dao.User;
+import com.banking.bank.domain.Resource;
+import com.banking.bank.domain.User;
 import com.banking.bank.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

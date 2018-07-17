@@ -1,7 +1,7 @@
 package com.banking.bank.services;
 
 
-import com.banking.bank.dao.User;
+import com.banking.bank.domain.User;
 import org.springframework.stereotype.Component;
 
 @Component
