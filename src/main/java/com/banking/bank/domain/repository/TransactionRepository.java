@@ -1,7 +1,8 @@
 package com.banking.bank.domain.repository;
 
-/**
- * Created by anandu on 17/7/18.
- */
-public interface TransactionRepository {
+
+import com.banking.bank.domain.Transaction;
+import org.springframework.data.mongodb.repository.MongoRepository;
+
+public interface TransactionRepository extends MongoRepository<Transaction, Long> {
 }

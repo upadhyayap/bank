@@ -1,7 +1,9 @@
 package com.banking.bank.domain.repository;
 
-/**
- * Created by anandu on 17/7/18.
- */
-public interface AccountRepository {
+
+import com.banking.bank.domain.Account;
+import org.springframework.data.mongodb.repository.MongoRepository;
+
+public interface AccountRepository extends MongoRepository<Account, Long>{
+
 }
